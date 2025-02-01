@@ -4,6 +4,7 @@ import com.carlosalexis99.soccer.persistence.entities.Equipo;
 import com.carlosalexis99.soccer.persistence.entities.Liga;
 import com.carlosalexis99.soccer.persistence.repositories.LigaRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -18,6 +19,11 @@ public class LigaServiceImpl implements LigaService {
     @Override
     public List<Liga> findAll() {
         return (List<Liga>) ligaRepository.findAll();
+    }
+
+    @Override
+    public List<Liga> findAll(Specification specification) {
+        return (List<Liga>) ligaRepository.findAll(specification);
     }
 
     @Override

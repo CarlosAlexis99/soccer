@@ -3,6 +3,7 @@ package com.carlosalexis99.soccer.domain.service;
 import com.carlosalexis99.soccer.persistence.entities.Equipo;
 import com.carlosalexis99.soccer.persistence.repositories.EquipoRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -17,6 +18,20 @@ public class EquipoServiceImpl implements EquipoService {
     @Override
     public List<Equipo> findAll() {
         return (List<Equipo>) equipoRepository.findAll();
+    }
+
+    @Override
+    public List<Equipo> findAll(String nombre) {
+        if (nombre == null || nombre.isEmpty()){
+            return (List<Equipo>) equipoRepository.findAll();
+        }
+        String nombreToLower = nombre.toLowerCase();
+        return (List<Equipo>) equipoRepository.findAllByNombreContaining(nombreToLower);
+    }
+
+    @Override
+    public List<Equipo> findAll(Specification specification) {
+        return (List<Equipo>) equipoRepository.findAll(specification);
     }
 
     @Override
@@ -39,6 +54,18 @@ public class EquipoServiceImpl implements EquipoService {
         equipoRepository.save(equipo);
         equipoRepository.delete(equipo);
     }
+
+    @Override
+    public void deleteEquipoFromLiga(Integer idEquipo, Integer idLiga) throws Exception {
+        Equipo equipo = equipoRepository.findById(idEquipo).orElseThrow(() -> new Exception("Equipo not found"));
+        equipo.getLigas().forEach(liga -> {
+            if (liga.getId().equals(idLiga)) {
+                liga.getEquipos().remove(equipo);
+            }
+        });
+        equipoRepository.save(equipo);
+    }
+
 
     @Override
     public Equipo update(Integer id, Equipo equipo) {

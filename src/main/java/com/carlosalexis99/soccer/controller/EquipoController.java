@@ -7,6 +7,8 @@ import com.carlosalexis99.soccer.domain.dto.LigaMapper;
 import com.carlosalexis99.soccer.domain.dto.response.ResponseBodyDTO;
 import com.carlosalexis99.soccer.domain.service.EquipoService;
 import com.carlosalexis99.soccer.persistence.entities.Equipo;
+import com.carlosalexis99.soccer.persistence.entities.Liga;
+import com.carlosalexis99.soccer.persistence.specification.SearchJugadorSpecification;
 import com.carlosalexis99.soccer.util.Mensajes;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,8 +31,13 @@ public class EquipoController {
     private EquipoService equipoService;
 
     @GetMapping
-    public ResponseEntity<ResponseBodyDTO> showEquipos(){
-        List<EquipoDTO> equipos = equipoService.findAll().stream().map(
+    public ResponseEntity<ResponseBodyDTO> showEquipos(
+            @RequestParam(required = false) String nombre,
+            @RequestParam(required = false) Integer ligaId
+    ) {
+        SearchJugadorSpecification specification = new SearchJugadorSpecification(nombre, ligaId);
+
+        List<EquipoDTO> equipos = equipoService.findAll(specification).stream().map(
                 EquipoMapper.mapper::equipoToDto
         ).collect(Collectors.toList());
         return ResponseEntity.ok(new ResponseBodyDTO(
@@ -51,7 +58,7 @@ public class EquipoController {
     }
 
     @GetMapping("/usuario/{id}")
-    public ResponseEntity<ResponseBodyDTO> showLigasByUsuario(@PathVariable Integer id){
+    public ResponseEntity<ResponseBodyDTO> showEquiposByUsuario(@PathVariable Integer id){
         List<EquipoDTO> equipos = equipoService.getEquipoByUsuarioId(id).stream()
                 .map(EquipoMapper.mapper::equipoToDto)
                 .toList();
@@ -127,7 +134,26 @@ public class EquipoController {
 
     @DeleteMapping("/{id}")
     public ResponseEntity<ResponseBodyDTO> deleteEquipo(@PathVariable Integer id) throws Exception {
-        equipoService.deleteById(id);
+        try {
+            equipoService.deleteById(id);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(new ResponseBodyDTO(
+                    Mensajes.SOLICITUD_FALLIDA + " "+ e.getMessage(), false, null
+            ));
+        }
+        return ResponseEntity.noContent().build();
+    }
+
+    @DeleteMapping
+    public ResponseEntity<ResponseBodyDTO> deleteEquipobyLiga(@RequestParam Integer idEquipo,
+                                                              @RequestParam Integer idLiga) throws Exception {
+        try{
+            equipoService.deleteEquipoFromLiga(idEquipo, idLiga);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(new ResponseBodyDTO(
+                    Mensajes.SOLICITUD_FALLIDA + " "+ e.getMessage(), false, null
+            ));
+        }
         return ResponseEntity.noContent().build();
     }
 }

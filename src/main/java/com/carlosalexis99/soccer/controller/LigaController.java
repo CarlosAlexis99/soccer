@@ -5,6 +5,7 @@ import com.carlosalexis99.soccer.domain.dto.LigaMapper;
 import com.carlosalexis99.soccer.domain.dto.response.ResponseBodyDTO;
 import com.carlosalexis99.soccer.domain.service.LigaService;
 import com.carlosalexis99.soccer.persistence.entities.Liga;
+import com.carlosalexis99.soccer.persistence.specification.SearchLigaSpecification;
 import com.carlosalexis99.soccer.util.Mensajes;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,6 +16,7 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
+import java.math.BigDecimal;
 import java.net.URI;
 import java.util.List;
 import java.util.Optional;
@@ -29,8 +31,14 @@ public class LigaController {
 
 
     @GetMapping
-    public ResponseEntity<ResponseBodyDTO> showLigas(){
-        List<LigaDTO> ligas = ligaService.findAll().stream().map(
+    public ResponseEntity<ResponseBodyDTO> showLigas(
+            @RequestParam(required = false) String nombre,
+            @RequestParam(required = false) BigDecimal minPremio,
+            @RequestParam(required = false) BigDecimal maxPremio
+    ){
+        SearchLigaSpecification specification = new SearchLigaSpecification(nombre , minPremio, maxPremio);
+
+        List<LigaDTO> ligas = ligaService.findAll(specification).stream().map(
                 liga -> LigaMapper.mapper.ligaToDto(liga)).collect(Collectors.toList());
         return ResponseEntity.ok(new ResponseBodyDTO(
                 Mensajes.SOLICITUD_EXITOSA, true, ligas));
