@@ -1,4 +1,4 @@
-# Proyecto: Gestión de ligas de futbol
+# Proyecto: Gestión de ligas de futbol (Proyecto en desarrollo)
 
 ## Descripción
 
@@ -26,4 +26,3 @@ Crear una base de datos con el nombre especificado en el archivo application.yml
 ***persistence***: Engloba modelos, repositorios y especificaciones para consultas (Liga, Equipo, Jugador).
 
 
-## Proyecto en desarrollo
